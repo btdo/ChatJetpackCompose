@@ -1,18 +1,22 @@
 package com.example.composechat
 
 import android.os.Bundle
+import android.provider.ContactsContract
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.composechat.ui.ChatDrawer
+import com.example.composechat.ui.ConversationBody
+import com.example.composechat.ui.ProfileBody
 import com.example.composechat.ui.theme.ComposeChatTheme
 import kotlinx.coroutines.launch
 
@@ -38,14 +42,27 @@ fun ChatApp(viewModel: MainViewModel) {
                 drawerState.open()
             }
         }
+
+        val conversation = ChatScreen.ConversationScreen(
+            Icons.Filled.AccountBox,
+            "Conversation",
+            "conversation") {
+            ConversationBody(ui = viewModel.conversationUI)
+        }
+
+        val profile = ChatScreen.Profile(Icons.Filled.Person, "Profile", "profile") {
+            ProfileBody()
+        }
+
+        val screens = listOf(conversation, profile)
         val backstackEntry = navController.currentBackStackEntryAsState()
-        val currentScreen = ChatScreen.fromRoute(backstackEntry.value?.destination?.route)
+        val currentScreen = fromRoute(backstackEntry.value?.destination?.route, screens)
 
         ModalDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
-                ChatDrawer(selected = currentScreen, onDestinationClicked = { route ->
+                ChatDrawer(screens = screens, selected = currentScreen, onDestinationClicked = { route ->
                     scope.launch {
                         drawerState.close()
                     }
@@ -56,9 +73,9 @@ fun ChatApp(viewModel: MainViewModel) {
             }) {
             NavHost(
                 navController = navController,
-                startDestination = ChatScreen.Conversation.route
+                startDestination = screens[0].route
             ) {
-                chatScreens.forEach { screen ->
+                screens.forEach { screen ->
                     composable(screen.route) {
                         ChatScreenScaffold(title = screen.title, body = {
                             screen.body()
@@ -71,4 +88,22 @@ fun ChatApp(viewModel: MainViewModel) {
         }
     }
 }
+
+fun fromRoute(route: String?, screens: List<ChatScreen>): ChatScreen {
+    if (route == null) {
+        return screens[0]
+    }
+    var foundScreen : ChatScreen? = null
+    screens.forEach {
+        if (it.route == route) {
+            foundScreen = it
+        }
+    }
+
+    if (foundScreen == null) {
+        throw IllegalArgumentException("Route $route is not recognized.")
+    }
+    return foundScreen!!
+}
+
 

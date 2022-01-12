@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.ChatScreen
 import com.example.composechat.R
-import com.example.composechat.chatScreens
+import com.example.composechat.conversation.ConversationUiState
+import com.example.composechat.conversation.initialMessages
 import com.example.composechat.ui.theme.ComposeChatTheme
 
 @Composable
@@ -34,6 +37,7 @@ fun TopBar(title: String, onDrawerClicked: () -> Unit) {
 @Composable
 fun ChatDrawer(
     modifier: Modifier = Modifier,
+    screens: List<ChatScreen>,
     selected: ChatScreen,
     onDestinationClicked: (route: String) -> Unit
 ) {
@@ -46,7 +50,7 @@ fun ChatDrawer(
             modifier.padding(top = 5.dp),
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f)
         )
-        chatScreens.forEach {
+        screens.forEach {
             DrawerItem(
                 Modifier.clickable {
                     onDestinationClicked(it.route)
@@ -122,9 +126,21 @@ fun DrawerItem(modifier: Modifier = Modifier, screen: ChatScreen, selected: Bool
 @Composable
 @Preview
 fun ChatDrawerPreview() {
+    val conversation = ChatScreen.ConversationScreen(
+        Icons.Filled.AccountBox,
+        "Conversation",
+        "conversation")
+    {
+        ConversationBody(ui = ConversationUiState("test", 4, initialMessages = initialMessages))
+    }
+    val profile = ChatScreen.Profile(Icons.Filled.Person, "Profile", "profile") {
+        ProfileBody()
+    }
+    val screens = listOf(conversation, profile)
+
     ComposeChatTheme {
         Surface {
-            ChatDrawer( selected = ChatScreen.Conversation, onDestinationClicked = {})
+            ChatDrawer( screens = screens, selected = conversation, onDestinationClicked = {})
         }
     }
 }
