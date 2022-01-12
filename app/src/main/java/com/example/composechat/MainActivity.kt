@@ -1,7 +1,6 @@
 package com.example.composechat
 
 import android.os.Bundle
-import android.provider.ContactsContract
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -50,7 +49,7 @@ fun ChatApp(viewModel: MainViewModel) {
             ConversationBody(ui = viewModel.conversationUI)
         }
 
-        val profile = ChatScreen.Profile(Icons.Filled.Person, "Profile", "profile") {
+        val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
             ProfileBody()
         }
 

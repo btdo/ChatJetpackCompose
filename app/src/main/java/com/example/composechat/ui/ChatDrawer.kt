@@ -133,7 +133,7 @@ fun ChatDrawerPreview() {
     {
         ConversationBody(ui = ConversationUiState("test", 4, initialMessages = initialMessages))
     }
-    val profile = ChatScreen.Profile(Icons.Filled.Person, "Profile", "profile") {
+    val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
         ProfileBody()
     }
     val screens = listOf(conversation, profile)

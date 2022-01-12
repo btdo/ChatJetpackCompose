@@ -9,7 +9,7 @@ import com.example.composechat.ui.TopBar
 
 sealed class ChatScreen(open val icon: ImageVector, open val title: String, open val route: String, open val body: @Composable () -> Unit) {
     data class ConversationScreen(override val icon: ImageVector, override val title: String, override val route: String, override val body: @Composable () -> Unit): ChatScreen(icon, title, route, body)
-    data class Profile(override val icon: ImageVector, override val title: String, override val route: String, override val body: @Composable () -> Unit): ChatScreen(icon, title, route, body)
+    data class ProfileScreen(override val icon: ImageVector, override val title: String, override val route: String, override val body: @Composable () -> Unit): ChatScreen(icon, title, route, body)
 }
 
 @Composable
