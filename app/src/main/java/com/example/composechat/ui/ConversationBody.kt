@@ -1,5 +1,6 @@
 package com.example.composechat.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -12,7 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.conversation.*
@@ -35,16 +38,13 @@ fun Messages(messages: List<Message>, scrollState: LazyListState = rememberLazyL
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = scrollState, reverseLayout = true) {
             for (index in messages.indices) {
-                val prevAuthor = messages.getOrNull(index - 1)?.author
                 val nextAuthor = messages.getOrNull(index + 1)?.author
                 val message = messages[index]
-                val isFirstMessageByAuthor = prevAuthor != message.author
                 val isLastMessageByAuthor = nextAuthor != message.author
                 val isCurrentAuthor = message.author == "me"
                 item {
-                    Message(
+                    MessageAnAuthor(
                         message = message,
-                        isFirstMessageByAuthor = isFirstMessageByAuthor,
                         isLastMessageByAuthor = isLastMessageByAuthor,
                         isAuthorMe = isCurrentAuthor
                     )
@@ -62,39 +62,60 @@ fun MessagesPreview() {
 }
 
 @Composable
-fun Message(
+fun MessageAnAuthor(
     modifier: Modifier = Modifier,
     message: Message,
-    isFirstMessageByAuthor: Boolean,
     isLastMessageByAuthor: Boolean,
     isAuthorMe: Boolean
 ) {
-    val padding = if (isAuthorMe) Modifier.padding(start= 24.dp, end = 8.dp) else Modifier.padding(start = 8.dp, end = 24.dp)
+    val padding = if (isAuthorMe) Modifier.padding(
+        start = 24.dp,
+        end = 8.dp
+    ) else Modifier.padding(start = 8.dp, end = 24.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .then(padding),
         horizontalAlignment = if (isAuthorMe) Alignment.End else Alignment.Start
     ) {
-        if (isLastMessageByAuthor) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(text = message.author)
-        } else {
-            Spacer(modifier = Modifier.height(12.dp))
-        }
+        Author(message = message, isLastMessageByAuthor = isLastMessageByAuthor)
+        Message(message = message, isLastMessageByAuthor = isLastMessageByAuthor, isAuthorMe = isAuthorMe)
+    }
+}
 
-        val backgroundBubbleColor = if (isAuthorMe) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        }
+@Composable
+fun Author(message: Message, isLastMessageByAuthor: Boolean,){
+    if (isLastMessageByAuthor) {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(text = message.author, style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(4.dp))
+    } else {
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
 
-        val chatBubble = if (isAuthorMe) ChatBubbleShapeMe else ChatBubbleShape
+@Composable
+fun Message(message: Message, isLastMessageByAuthor: Boolean,isAuthorMe: Boolean) {
+    val backgroundBubbleColor = if (isAuthorMe) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
 
-        Surface(color = backgroundBubbleColor, shape = chatBubble) {
+    val chatBubble = if (isAuthorMe) ChatBubbleShapeMe else ChatBubbleShape
+
+    Surface(color = backgroundBubbleColor, shape = chatBubble) {
+        Column(Modifier.padding(12.dp)) {
             ClickableText(message = message, isAuthorMe = isAuthorMe, {})
+            message.image?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Surface(color = backgroundBubbleColor, shape = chatBubble) {
+                    Image(painter = painterResource(id = it),
+                        contentScale = ContentScale.Fit
+                        , contentDescription = null)
+                }
+            }
         }
-
     }
 }
 
