@@ -6,36 +6,43 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.conversation.*
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.navigationBarsWithImePadding
 
 @Composable
-fun ConversationBody(modifier: Modifier = Modifier, ui: ConversationUiState) {
+fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
-    Surface(modifier = modifier) {
-        Messages(ui.messages, scrollState = scrollState)
-    }
+        Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Messages(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
+                UserInput()
+            }
+        }
+
+
 }
 
-@Composable
-fun MessageInput() {
-
-}
 
 @Composable
-fun Messages(messages: List<Message>, scrollState: LazyListState = rememberLazyListState()) {
-    Box(modifier = Modifier.fillMaxSize()) {
+fun Messages(messages: List<Message>, scrollState: LazyListState = rememberLazyListState(), modifier: Modifier = Modifier) {
+    Box(modifier = modifier) {
         LazyColumn(state = scrollState, reverseLayout = true) {
             for (index in messages.indices) {
                 val nextAuthor = messages.getOrNull(index + 1)?.author
@@ -56,7 +63,7 @@ fun Messages(messages: List<Message>, scrollState: LazyListState = rememberLazyL
 
 @Composable
 @Preview
-fun MessagesPreview() {
+fun ConversationBodyPreview() {
     val conUi = ConversationUiState("test", 4, initialMessages = initialMessages)
     ConversationBody(ui = conUi)
 }

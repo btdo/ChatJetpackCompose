@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -17,6 +18,8 @@ import com.example.composechat.ui.ChatDrawer
 import com.example.composechat.ui.ConversationBody
 import com.example.composechat.ui.ProfileBody
 import com.example.composechat.ui.theme.ComposeChatTheme
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.ViewWindowInsetObserver
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +48,8 @@ fun ChatApp(viewModel: MainViewModel) {
         val conversation = ChatScreen.ConversationScreen(
             Icons.Filled.AccountBox,
             "Conversation",
-            "conversation") {
+            "conversation"
+        ) {
             ConversationBody(ui = viewModel.conversationUI)
         }
 
@@ -61,14 +65,17 @@ fun ChatApp(viewModel: MainViewModel) {
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
-                ChatDrawer(screens = screens, selected = currentScreen, onDestinationClicked = { route ->
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                })
+                ChatDrawer(
+                    screens = screens,
+                    selected = currentScreen,
+                    onDestinationClicked = { route ->
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    })
             }) {
             NavHost(
                 navController = navController,
@@ -92,7 +99,7 @@ fun fromRoute(route: String?, screens: List<ChatScreen>): ChatScreen {
     if (route == null) {
         return screens[0]
     }
-    var foundScreen : ChatScreen? = null
+    var foundScreen: ChatScreen? = null
     screens.forEach {
         if (it.route == route) {
             foundScreen = it
