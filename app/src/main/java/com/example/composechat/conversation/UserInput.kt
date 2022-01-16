@@ -4,10 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,20 +18,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.navigationBarsWithImePadding
+import com.example.composechat.R
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UserInput(modifier: Modifier = Modifier.navigationBarsWithImePadding()) {
+fun UserInput(modifier: Modifier = Modifier) {
     val (text, setText) = remember { mutableStateOf("") }
     Column(modifier = modifier) {
         UserInputText(text = text, onTextChanged = setText)
+        UserInputSelector(onMessageSendClicked = { }, onIconSelected = {}, selected = InputSelector.NONE)
     }
 }
 
@@ -42,9 +41,81 @@ fun UserInputPreview() {
     UserInput()
 }
 
+@Preview
+@Composable
+fun UserInputSelectorPreview() {
+    UserInputSelector(
+        onMessageSendClicked = { /*TODO*/ },
+        onIconSelected = {},
+        selected = InputSelector.EMOJI
+    )
+}
 
 @Composable
-fun UserInputText(text: String, onTextChanged: (String) -> Unit, modifier: Modifier = Modifier) {
+fun UserInputSelector(
+    modifier: Modifier = Modifier,
+    onMessageSendClicked: () -> Unit,
+    onIconSelected: (InputSelector) -> Unit,
+    selected: InputSelector = InputSelector.NONE
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        InputSelectorButton(
+            onClick = { onIconSelected(InputSelector.EMOJI) },
+            icon = Icons.Outlined.Mood,
+            description = stringResource(id = R.string.emoji_selector_bt_desc),
+            selected = InputSelector.EMOJI == selected
+        )
+        InputSelectorButton(
+            onClick = { onIconSelected(InputSelector.DM) },
+            icon = Icons.Outlined.AlternateEmail,
+            description = stringResource(id = R.string.dm_desc),
+            selected = InputSelector.DM == selected
+        )
+        InputSelectorButton(
+            onClick = { onIconSelected(InputSelector.PICTURE) },
+            icon = Icons.Outlined.InsertPhoto,
+            description = stringResource(id = R.string.attach_photo_desc),
+            selected = InputSelector.PICTURE == selected
+        )
+        InputSelectorButton(
+            onClick = { onIconSelected(InputSelector.MAP) },
+            icon = Icons.Outlined.Place,
+            description = stringResource(id = R.string.map_selector_desc),
+            selected = InputSelector.MAP == selected
+        )
+        InputSelectorButton(
+            onClick = { onIconSelected(InputSelector.PHONE) },
+            icon = Icons.Outlined.Duo,
+            description = stringResource(id = R.string.videochat_desc),
+            selected = InputSelector.PHONE == selected
+        )
+
+        Button(modifier = Modifier.height(36.dp), onClick = onMessageSendClicked) {
+            Text(stringResource(id = R.string.send))
+        }
+    }
+}
+
+@Composable
+private fun InputSelectorButton(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    description: String,
+    selected: Boolean
+) {
+    IconButton(onClick = onClick) {
+        Icon(icon, modifier = Modifier.padding(16.dp), contentDescription = description)
+    }
+}
+
+
+@Composable
+fun UserInputText(text: String, onTextChanged: (String) -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -67,4 +138,13 @@ fun UserInputText(text: String, onTextChanged: (String) -> Unit, modifier: Modif
         )
     }
 
+}
+
+enum class InputSelector {
+    NONE,
+    MAP,
+    DM,
+    EMOJI,
+    PHONE,
+    PICTURE
 }
