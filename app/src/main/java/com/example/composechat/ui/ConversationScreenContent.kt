@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.LocalContentColor
@@ -25,23 +27,32 @@ import androidx.compose.ui.unit.dp
 import com.example.composechat.conversation.*
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
+import com.google.accompanist.insets.statusBarsPadding
 
 @Composable
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
-        Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Messages(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
-                UserInput()
-            }
-        }
 
+    Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
+        Column(
+            modifier = Modifier
+                .navigationBarsWithImePadding()
+                .fillMaxSize()
+        ) {
+            Messages(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
+            UserInput()
+        }
+    }
 
 }
 
 
 @Composable
-fun Messages(messages: List<Message>, scrollState: LazyListState = rememberLazyListState(), modifier: Modifier = Modifier) {
+fun Messages(
+    messages: List<Message>,
+    scrollState: LazyListState = rememberLazyListState(),
+    modifier: Modifier = Modifier
+) {
     Box(modifier = modifier) {
         LazyColumn(state = scrollState, reverseLayout = true) {
             for (index in messages.indices) {
@@ -86,12 +97,16 @@ fun MessageAnAuthor(
         horizontalAlignment = if (isAuthorMe) Alignment.End else Alignment.Start
     ) {
         Author(message = message, isLastMessageByAuthor = isLastMessageByAuthor)
-        Message(message = message, isLastMessageByAuthor = isLastMessageByAuthor, isAuthorMe = isAuthorMe)
+        Message(
+            message = message,
+            isLastMessageByAuthor = isLastMessageByAuthor,
+            isAuthorMe = isAuthorMe
+        )
     }
 }
 
 @Composable
-fun Author(message: Message, isLastMessageByAuthor: Boolean,){
+fun Author(message: Message, isLastMessageByAuthor: Boolean) {
     if (isLastMessageByAuthor) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = message.author, style = MaterialTheme.typography.titleMedium)
@@ -102,7 +117,7 @@ fun Author(message: Message, isLastMessageByAuthor: Boolean,){
 }
 
 @Composable
-fun Message(message: Message, isLastMessageByAuthor: Boolean,isAuthorMe: Boolean) {
+fun Message(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
     val backgroundBubbleColor = if (isAuthorMe) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -117,9 +132,10 @@ fun Message(message: Message, isLastMessageByAuthor: Boolean,isAuthorMe: Boolean
             message.image?.let {
                 Spacer(modifier = Modifier.height(4.dp))
                 Surface(color = backgroundBubbleColor, shape = chatBubble) {
-                    Image(painter = painterResource(id = it),
-                        contentScale = ContentScale.Fit
-                        , contentDescription = null)
+                    Image(
+                        painter = painterResource(id = it),
+                        contentScale = ContentScale.Fit, contentDescription = null
+                    )
                 }
             }
         }
