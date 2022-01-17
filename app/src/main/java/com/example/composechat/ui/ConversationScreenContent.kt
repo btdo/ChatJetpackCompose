@@ -5,29 +5,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.conversation.*
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
-import com.google.accompanist.insets.statusBarsPadding
 
 @Composable
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
@@ -39,7 +31,7 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
                 .navigationBarsWithImePadding()
                 .fillMaxSize()
         ) {
-            Messages(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
+            MessagesBody(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
             UserInput()
         }
     }
@@ -48,7 +40,7 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
 
 
 @Composable
-fun Messages(
+fun MessagesBody(
     messages: List<Message>,
     scrollState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier
@@ -61,7 +53,7 @@ fun Messages(
                 val isLastMessageByAuthor = nextAuthor != message.author
                 val isCurrentAuthor = message.author == "me"
                 item {
-                    MessageAnAuthor(
+                    MessageAndAuthorBody(
                         message = message,
                         isLastMessageByAuthor = isLastMessageByAuthor,
                         isAuthorMe = isCurrentAuthor
@@ -80,7 +72,7 @@ fun ConversationBodyPreview() {
 }
 
 @Composable
-fun MessageAnAuthor(
+fun MessageAndAuthorBody(
     modifier: Modifier = Modifier,
     message: Message,
     isLastMessageByAuthor: Boolean,
@@ -96,8 +88,8 @@ fun MessageAnAuthor(
             .then(padding),
         horizontalAlignment = if (isAuthorMe) Alignment.End else Alignment.Start
     ) {
-        Author(message = message, isLastMessageByAuthor = isLastMessageByAuthor)
-        Message(
+        AuthorBody(message = message, isLastMessageByAuthor = isLastMessageByAuthor)
+        MessageBody(
             message = message,
             isLastMessageByAuthor = isLastMessageByAuthor,
             isAuthorMe = isAuthorMe
@@ -106,7 +98,7 @@ fun MessageAnAuthor(
 }
 
 @Composable
-fun Author(message: Message, isLastMessageByAuthor: Boolean) {
+fun AuthorBody(message: Message, isLastMessageByAuthor: Boolean) {
     if (isLastMessageByAuthor) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = message.author, style = MaterialTheme.typography.titleMedium)
@@ -117,7 +109,7 @@ fun Author(message: Message, isLastMessageByAuthor: Boolean) {
 }
 
 @Composable
-fun Message(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
+fun MessageBody(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
     val backgroundBubbleColor = if (isAuthorMe) {
         MaterialTheme.colorScheme.primary
     } else {
