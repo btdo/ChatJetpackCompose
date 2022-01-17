@@ -1,10 +1,12 @@
 package com.example.composechat.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -13,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -24,23 +27,23 @@ import com.google.accompanist.insets.navigationBarsWithImePadding
 @Composable
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
-
     Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .navigationBarsWithImePadding()
                 .fillMaxSize()
         ) {
-            MessagesBody(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
-            UserInput()
+            MessageList(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
+            UserInputContent({
+                ui.addMessage(it)
+            })
         }
     }
-
 }
 
 
 @Composable
-fun MessagesBody(
+fun MessageList(
     messages: List<Message>,
     scrollState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier
@@ -53,7 +56,7 @@ fun MessagesBody(
                 val isLastMessageByAuthor = nextAuthor != message.author
                 val isCurrentAuthor = message.author == "me"
                 item {
-                    MessageAndAuthorBody(
+                    MessageAndAuthor(
                         message = message,
                         isLastMessageByAuthor = isLastMessageByAuthor,
                         isAuthorMe = isCurrentAuthor
@@ -72,7 +75,7 @@ fun ConversationBodyPreview() {
 }
 
 @Composable
-fun MessageAndAuthorBody(
+fun MessageAndAuthor(
     modifier: Modifier = Modifier,
     message: Message,
     isLastMessageByAuthor: Boolean,
@@ -88,8 +91,12 @@ fun MessageAndAuthorBody(
             .then(padding),
         horizontalAlignment = if (isAuthorMe) Alignment.End else Alignment.Start
     ) {
-        AuthorBody(message = message, isLastMessageByAuthor = isLastMessageByAuthor)
-        MessageBody(
+        AuthorSection(
+            message = message,
+            isLastMessageByAuthor = isLastMessageByAuthor,
+            isAuthorMe = isAuthorMe
+        )
+        MessageSection(
             message = message,
             isLastMessageByAuthor = isLastMessageByAuthor,
             isAuthorMe = isAuthorMe
@@ -98,18 +105,35 @@ fun MessageAndAuthorBody(
 }
 
 @Composable
-fun AuthorBody(message: Message, isLastMessageByAuthor: Boolean) {
+fun AuthorSection(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
     if (isLastMessageByAuthor) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(text = message.author, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (isAuthorMe) {
+                Text(text = message.author, style = MaterialTheme.typography.titleMedium)
+            } else {
+                Image(
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(42.dp)
+                        .border(1.5.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
+                        .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                        .clip(CircleShape),
+                    painter = painterResource(id = message.authorImage),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "Author"
+                )
+                Text(text = message.author, style = MaterialTheme.typography.titleMedium)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
     } else {
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
 @Composable
-fun MessageBody(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
+fun MessageSection(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
     val backgroundBubbleColor = if (isAuthorMe) {
         MaterialTheme.colorScheme.primary
     } else {

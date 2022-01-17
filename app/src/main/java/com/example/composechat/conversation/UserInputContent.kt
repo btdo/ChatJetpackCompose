@@ -1,44 +1,47 @@
 package com.example.composechat.conversation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.R
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 @Composable
-fun UserInput(modifier: Modifier = Modifier) {
+fun UserInputContent(onMessageSend: (Message) -> Unit, modifier: Modifier = Modifier) {
     val (text, setText) = remember { mutableStateOf("") }
     Column(modifier = modifier) {
         UserInputText(text = text, onTextChanged = setText)
-        UserInputSelector(onMessageSendClicked = { }, onIconSelected = {}, selected = InputSelector.NONE)
+        UserInputSelector(onMessageSendClicked = {
+            val time = SimpleDateFormat("HH:mm a").format(Date())
+            onMessageSend(
+                Message("me", content = text, timestamp = time)
+            )
+            setText("")
+        }, onIconSelected = {}, selected = InputSelector.NONE)
     }
 }
 
 @Preview
 @Composable
 fun UserInputPreview() {
-    UserInput()
+    UserInputContent({})
 }
 
 @Preview

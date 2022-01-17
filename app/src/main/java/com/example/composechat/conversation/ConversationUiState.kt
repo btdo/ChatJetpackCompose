@@ -9,7 +9,7 @@ class ConversationUiState(channelName: String, val channelMembers: Int, initialM
         private set
 
     fun addMessage(message: Message){
-        messages.add(message)
+        messages.add(0, message)
     }
 }
 
