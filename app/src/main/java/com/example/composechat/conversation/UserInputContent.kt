@@ -1,18 +1,21 @@
 package com.example.composechat.conversation
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -26,6 +29,7 @@ import java.util.*
 @Composable
 fun UserInputContent(onMessageSend: (Message) -> Unit, modifier: Modifier = Modifier) {
     val (text, setText) = remember { mutableStateOf("") }
+    val (selectedIcon, setSelectedIcon) = remember { mutableStateOf(InputSelector.NONE) }
     Column(modifier = modifier) {
         UserInputText(text = text, onTextChanged = setText)
         UserInputSelector(onMessageSendClicked = {
@@ -34,7 +38,9 @@ fun UserInputContent(onMessageSend: (Message) -> Unit, modifier: Modifier = Modi
                 Message("me", content = text, timestamp = time)
             )
             setText("")
-        }, onIconSelected = {}, selected = InputSelector.NONE)
+        }, onIconSelected = {
+            setSelectedIcon(it)
+        }, selected = selectedIcon, isSendEnabled = text.isNotEmpty())
     }
 }
 
@@ -50,7 +56,17 @@ fun UserInputSelectorPreview() {
     UserInputSelector(
         onMessageSendClicked = { /*TODO*/ },
         onIconSelected = {},
-        selected = InputSelector.EMOJI
+        selected = InputSelector.EMOJI, isSendEnabled = true
+    )
+}
+
+@Preview
+@Composable
+fun UserInputSelectorPreview_Disabled() {
+    UserInputSelector(
+        onMessageSendClicked = { /*TODO*/ },
+        onIconSelected = {},
+        selected = InputSelector.EMOJI, isSendEnabled = false
     )
 }
 
@@ -59,11 +75,13 @@ fun UserInputSelector(
     modifier: Modifier = Modifier,
     onMessageSendClicked: () -> Unit,
     onIconSelected: (InputSelector) -> Unit,
-    selected: InputSelector = InputSelector.NONE
+    selected: InputSelector = InputSelector.NONE,
+    isSendEnabled: Boolean
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -98,7 +116,28 @@ fun UserInputSelector(
             selected = InputSelector.PHONE == selected
         )
 
-        Button(modifier = Modifier.height(36.dp), onClick = onMessageSendClicked) {
+        val disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+        val buttonColors = ButtonDefaults.buttonColors(
+            disabledBackgroundColor = Color.Transparent,
+            disabledContentColor = disabledContentColor
+        )
+
+        val border = if (isSendEnabled) {
+            null
+        } else {
+            BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            )
+        }
+
+        Button(
+            modifier = Modifier.height(36.dp),
+            enabled = isSendEnabled,
+            onClick = onMessageSendClicked,
+            colors = buttonColors,
+            border = border
+        ) {
             Text(stringResource(id = R.string.send))
         }
     }
@@ -111,8 +150,29 @@ private fun InputSelectorButton(
     description: String,
     selected: Boolean
 ) {
-    IconButton(onClick = onClick) {
-        Icon(icon, modifier = Modifier.padding(16.dp), contentDescription = description)
+
+    val background = if (selected) {
+        Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.secondary)
+    } else {
+        Modifier
+    }
+
+    IconButton(
+        onClick = onClick,
+        modifier = background
+    ) {
+        val tint = if (selected) {
+            MaterialTheme.colorScheme.onSecondary
+        } else {
+            MaterialTheme.colorScheme.secondary
+        }
+
+        Icon(
+            icon,
+            tint = tint, modifier = Modifier.padding(16.dp), contentDescription = description
+        )
     }
 }
 

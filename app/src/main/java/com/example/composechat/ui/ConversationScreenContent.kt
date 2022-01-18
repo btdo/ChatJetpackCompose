@@ -98,7 +98,6 @@ fun MessageAndAuthor(
         )
         MessageSection(
             message = message,
-            isLastMessageByAuthor = isLastMessageByAuthor,
             isAuthorMe = isAuthorMe
         )
     }
@@ -133,7 +132,7 @@ fun AuthorSection(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: 
 }
 
 @Composable
-fun MessageSection(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
+fun MessageSection(message: Message, isAuthorMe: Boolean) {
     val backgroundBubbleColor = if (isAuthorMe) {
         MaterialTheme.colorScheme.primary
     } else {
