@@ -2,6 +2,7 @@ package com.example.composechat.conversation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,10 +11,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -25,13 +31,22 @@ import com.example.composechat.R
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Preview
+@Composable
+fun UserInputPreview() {
+    UserInput({})
+}
 
 @Composable
-fun UserInputContent(onMessageSend: (Message) -> Unit, modifier: Modifier = Modifier) {
+fun UserInput(onMessageSend: (Message) -> Unit, modifier: Modifier = Modifier) {
     val (text, setText) = remember { mutableStateOf("") }
     val (selectedIcon, setSelectedIcon) = remember { mutableStateOf(InputSelector.NONE) }
     Column(modifier = modifier) {
-        UserInputText(text = text, onTextChanged = setText)
+        UserInputText(text = text, onTextChanged = setText, {
+            if (it) {
+                setSelectedIcon(InputSelector.NONE)
+            }
+        })
         UserInputSelector(onMessageSendClicked = {
             val time = SimpleDateFormat("HH:mm a").format(Date())
             onMessageSend(
@@ -41,13 +56,89 @@ fun UserInputContent(onMessageSend: (Message) -> Unit, modifier: Modifier = Modi
         }, onIconSelected = {
             setSelectedIcon(it)
         }, selected = selectedIcon, isSendEnabled = text.isNotEmpty())
+        SelectorExpanded(currentSelector = selectedIcon) {
+            setSelectedIcon(InputSelector.NONE)
+        }
+    }
+}
+
+@Composable
+fun SelectorExpanded(currentSelector: InputSelector, onDismiss: () -> Unit) {
+    if (currentSelector == InputSelector.NONE)
+        return
+
+    val focusRequester = remember { FocusRequester() }
+    // If the selector is shown, always request focus to trigger a TextField.onFocusChange.
+    SideEffect {
+        when (currentSelector) {
+            InputSelector.EMOJI -> focusRequester.requestFocus()
+            InputSelector.PICTURE -> focusRequester.requestFocus()
+            InputSelector.MAP -> focusRequester.requestFocus()
+            InputSelector.PHONE -> focusRequester.requestFocus()
+        }
+    }
+
+    when (currentSelector) {
+        InputSelector.EMOJI -> FunctionalityNotAvailablePanel(focusRequester = focusRequester)
+        InputSelector.DM -> NotAvailablePopup {
+            onDismiss()
+        }
+        InputSelector.PICTURE -> FunctionalityNotAvailablePanel(focusRequester = focusRequester)
+        InputSelector.MAP -> FunctionalityNotAvailablePanel(focusRequester = focusRequester)
+        InputSelector.PHONE -> FunctionalityNotAvailablePanel(focusRequester = focusRequester)
+        else -> {
+            throw NotImplementedError()
+        }
+    }
+}
+
+@Composable
+fun NotAvailablePopup(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Text(
+                text = "Functionality not available \uD83D\uDE48",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "CLOSE")
+            }
+        }
+    )
+}
+
+@Composable
+fun FunctionalityNotAvailablePanel(focusRequester: FocusRequester) {
+    Column(
+        modifier = Modifier
+            .focusRequester(focusRequester = focusRequester)
+            .fillMaxWidth()
+            .height(320.dp)
+            .focusable(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.not_available),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            modifier = Modifier.padding(top = 32.dp),
+            text = stringResource(id = R.string.not_available_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Preview
 @Composable
-fun UserInputPreview() {
-    UserInputContent({})
+fun FunctionalityNotAvailablePanelPreview() {
+    val focusRequester = remember { FocusRequester() }
+    FunctionalityNotAvailablePanel(focusRequester = focusRequester)
 }
 
 @Preview
@@ -178,8 +269,12 @@ private fun InputSelectorButton(
 
 
 @Composable
-fun UserInputText(text: String, onTextChanged: (String) -> Unit) {
-    var isFocused by remember { mutableStateOf(false) }
+fun UserInputText(
+    text: String,
+    onTextChanged: (String) -> Unit,
+    onFocusChangeListener: (Boolean) -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
     Box(
         modifier = Modifier
             .height(64.dp)
@@ -192,9 +287,11 @@ fun UserInputText(text: String, onTextChanged: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterStart)
+                .focusRequester(focusRequester = focusRequester)
                 .onFocusChanged { state ->
-                    isFocused = state.isFocused
-                },
+                    onFocusChangeListener(state.isFocused)
+                }
+                .focusable(),
             placeholder = {
                 Text(text = "Enter text")
             }

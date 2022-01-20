@@ -24,6 +24,14 @@ import androidx.compose.ui.unit.dp
 import com.example.composechat.conversation.*
 import com.google.accompanist.insets.navigationBarsWithImePadding
 
+
+@Composable
+@Preview
+fun ConversationBodyPreview() {
+    val conUi = ConversationUiState("test", 4, initialMessages = initialMessages)
+    ConversationBody(ui = conUi)
+}
+
 @Composable
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
@@ -34,7 +42,7 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
                 .fillMaxSize()
         ) {
             MessageList(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
-            UserInputContent({
+            UserInput({
                 ui.addMessage(it)
             })
         }
@@ -67,12 +75,6 @@ fun MessageList(
     }
 }
 
-@Composable
-@Preview
-fun ConversationBodyPreview() {
-    val conUi = ConversationUiState("test", 4, initialMessages = initialMessages)
-    ConversationBody(ui = conUi)
-}
 
 @Composable
 fun MessageAndAuthor(
