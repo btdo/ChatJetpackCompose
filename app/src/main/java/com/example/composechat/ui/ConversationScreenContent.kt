@@ -43,9 +43,9 @@ fun ConversationBodyPreview() {
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val dismissKeyboard by remember {
+    val isScrolling by remember {
         derivedStateOf {
-            scrollState.firstVisibleItemIndex != 0
+            scrollState.isScrollInProgress
         }
     }
 
@@ -60,7 +60,7 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
                     scrollState.animateScrollToItem(0)
                 }
             }
-            UserInput(dismissKeyboard, {
+            UserInput(isScrolling = isScrolling, onMessageSend = {
                 ui.addMessage(it)
             })
         }

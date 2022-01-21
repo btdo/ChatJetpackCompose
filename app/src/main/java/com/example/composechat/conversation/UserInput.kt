@@ -11,10 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,20 +38,22 @@ fun UserInputPreview() {
 
 @Composable
 fun UserInput(
-    clearFocus: Boolean,
+    isScrolling: Boolean,
     onMessageSend: (Message) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var selectedIcon by rememberSaveable { mutableStateOf(InputSelector.NONE) }
     val (text, setText) = remember { mutableStateOf("") }
-    val (selectedIcon, setSelectedIcon) = remember { mutableStateOf(InputSelector.NONE) }
     val focusManager = LocalFocusManager.current
-    if (clearFocus) {
+    if (isScrolling) {
         focusManager.clearFocus()
+        selectedIcon = InputSelector.NONE
     }
+
     Column(modifier = modifier) {
         UserInputText(text = text, onTextChanged = setText, {
             if (it) {
-                setSelectedIcon(InputSelector.NONE)
+                selectedIcon = InputSelector.NONE
             }
         })
         UserInputSelector(onMessageSendClicked = {
@@ -63,10 +63,10 @@ fun UserInput(
             )
             setText("")
         }, onIconSelected = {
-            setSelectedIcon(it)
+            selectedIcon = it
         }, selected = selectedIcon, isSendEnabled = text.isNotEmpty())
         SelectorExpanded(currentSelector = selectedIcon) {
-            setSelectedIcon(InputSelector.NONE)
+            selectedIcon = InputSelector.NONE
         }
     }
 }
