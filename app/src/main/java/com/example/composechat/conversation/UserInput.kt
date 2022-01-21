@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,13 +35,21 @@ import java.util.*
 @Preview
 @Composable
 fun UserInputPreview() {
-    UserInput({})
+    UserInput(false, {})
 }
 
 @Composable
-fun UserInput(onMessageSend: (Message) -> Unit, modifier: Modifier = Modifier) {
+fun UserInput(
+    clearFocus: Boolean,
+    onMessageSend: (Message) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val (text, setText) = remember { mutableStateOf("") }
     val (selectedIcon, setSelectedIcon) = remember { mutableStateOf(InputSelector.NONE) }
+    val focusManager = LocalFocusManager.current
+    if (clearFocus) {
+        focusManager.clearFocus()
+    }
     Column(modifier = modifier) {
         UserInputText(text = text, onTextChanged = setText, {
             if (it) {

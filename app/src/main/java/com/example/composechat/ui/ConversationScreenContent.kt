@@ -8,21 +8,28 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.composechat.R
 import com.example.composechat.conversation.*
 import com.google.accompanist.insets.navigationBarsWithImePadding
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -35,14 +42,25 @@ fun ConversationBodyPreview() {
 @Composable
 fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val dismissKeyboard by remember {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex != 0
+        }
+    }
+
     Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .navigationBarsWithImePadding()
                 .fillMaxSize()
         ) {
-            MessageList(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f))
-            UserInput({
+            MessageList(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f)) {
+                scope.launch {
+                    scrollState.animateScrollToItem(0)
+                }
+            }
+            UserInput(dismissKeyboard, {
                 ui.addMessage(it)
             })
         }
@@ -54,8 +72,15 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
 fun MessageList(
     messages: List<Message>,
     scrollState: LazyListState = rememberLazyListState(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    resetScroll: () -> Unit
 ) {
+    val jumpToBottomEnabled by remember {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex != 0
+        }
+    }
+
     Box(modifier = modifier) {
         LazyColumn(state = scrollState, reverseLayout = true) {
             for (index in messages.indices) {
@@ -72,7 +97,40 @@ fun MessageList(
                 }
             }
         }
+
+        JumpToBottom(jumpToBottomEnabled, {
+            resetScroll()
+        }, Modifier.align(Alignment.BottomCenter))
     }
+}
+
+@Composable
+fun JumpToBottom(isEnabled: Boolean, onClicked: () -> Unit, modifier: Modifier = Modifier) {
+    if (isEnabled) {
+        FloatingActionButton(modifier = modifier, onClick = onClicked) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowDownward,
+                    modifier = Modifier.height(18.dp),
+                    contentDescription = null
+                )
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = stringResource(id = R.string.jumpBottom),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun JumpToBottomPreview() {
+    JumpToBottom(isEnabled = true, onClicked = { })
 }
 
 
