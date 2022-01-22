@@ -4,22 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material.*
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.ModalDrawer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.*
-import androidx.core.view.WindowCompat
+import androidx.compose.material.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.composechat.conversation.BackPressHandler
+import com.example.composechat.conversation.LocalBackPressedDispatcher
 import com.example.composechat.ui.ChatDrawer
 import com.example.composechat.ui.ConversationBody
 import com.example.composechat.ui.ProfileBody
 import com.example.composechat.ui.theme.ComposeChatTheme
-import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.ViewWindowInsetObserver
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +31,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ChatApp(viewModel)
+            CompositionLocalProvider(LocalBackPressedDispatcher provides this.onBackPressedDispatcher) {
+                ChatApp(viewModel)
+            }
         }
     }
 }
@@ -57,6 +62,14 @@ fun ChatApp(viewModel: MainViewModel) {
             ProfileBody()
         }
 
+        if (drawerState.isOpen) {
+            BackPressHandler {
+                scope.launch {
+                    drawerState.close()
+                }
+            }
+        }
+
         val screens = listOf(conversation, profile)
         val backstackEntry = navController.currentBackStackEntryAsState()
         val currentScreen = fromRoute(backstackEntry.value?.destination?.route, screens)
@@ -72,8 +85,10 @@ fun ChatApp(viewModel: MainViewModel) {
                         scope.launch {
                             drawerState.close()
                         }
-                        navController.navigate(route) {
-                            launchSingleTop = true
+                        if (route == conversation.route) {
+                            navController.popBackStack(conversation.route, inclusive = false)
+                        } else {
+                            navController.navigate(route)
                         }
                     })
             }) {
