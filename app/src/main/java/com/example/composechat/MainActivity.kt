@@ -59,7 +59,7 @@ fun ChatApp(viewModel: MainViewModel) {
         }
 
         val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
-            ProfileBody()
+            ProfileBody(viewModel.profileScreenState)
         }
 
         if (drawerState.isOpen) {

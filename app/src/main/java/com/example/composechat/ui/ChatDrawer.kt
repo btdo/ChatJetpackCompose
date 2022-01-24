@@ -21,6 +21,7 @@ import com.example.composechat.ChatScreen
 import com.example.composechat.R
 import com.example.composechat.conversation.ConversationUiState
 import com.example.composechat.conversation.initialMessages
+import com.example.composechat.conversation.meProfile
 import com.example.composechat.ui.theme.ComposeChatTheme
 
 @Composable
@@ -64,7 +65,7 @@ fun ChatDrawer(
 
 @Composable
 fun DrawerHeader() {
-    Row() {
+    Row {
         Box(modifier = Modifier.size(24.dp)) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_jetchat_front),
@@ -134,7 +135,7 @@ fun ChatDrawerPreview() {
         ConversationBody(ui = ConversationUiState("test", 4, initialMessages = initialMessages))
     }
     val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
-        ProfileBody()
+        ProfileBody(meProfile)
     }
     val screens = listOf(conversation, profile)
 

@@ -17,4 +17,10 @@
     <string name="jumpBottom">Jump to bottom</string>
     <string name="send">Send</string>
 
+    <string name="display_name">Display name</string>
+    <string name="status">Status</string>
+    <string name="timezone">Timezone</string>
+    <string name="twitter">Twitter</string>
+
+
 </resources>
