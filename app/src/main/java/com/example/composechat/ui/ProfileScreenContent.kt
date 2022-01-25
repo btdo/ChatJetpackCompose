@@ -1,6 +1,7 @@
 package com.example.composechat.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -31,7 +32,8 @@ fun ProfileBody(profileScreenState: ProfileScreenState, modifier: Modifier = Mod
             modifier
                 .fillMaxSize()
                 .padding(
-                    16.dp
+                    start =
+                    16.dp, end = 16.dp
                 )
                 .verticalScroll(scrollState)
         ) {
@@ -41,12 +43,16 @@ fun ProfileBody(profileScreenState: ProfileScreenState, modifier: Modifier = Mod
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(top = 16.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            ProfileNameAndPosition(profileScreenState = profileScreenState)
+            ProfileNameAndPosition(
+                profileScreenState = profileScreenState,
+                scrollState = scrollState
+            )
             ProfileProperty(
                 title = stringResource(id = R.string.display_name),
                 profileScreenState.displayName
@@ -60,6 +66,7 @@ fun ProfileBody(profileScreenState: ProfileScreenState, modifier: Modifier = Mod
             profileScreenState.timeZone?.let {
                 ProfileProperty(title = stringResource(id = R.string.timezone), it)
             }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 
@@ -72,7 +79,9 @@ fun ProfileBodyPreview() {
 }
 
 @Composable
-fun ProfileNameAndPosition(profileScreenState: ProfileScreenState) {
+fun ProfileNameAndPosition(profileScreenState: ProfileScreenState, scrollState: ScrollState) {
+
+
     Column(Modifier.fillMaxWidth()) {
         Text(text = profileScreenState.name, style = MaterialTheme.typography.h4)
         Text(
