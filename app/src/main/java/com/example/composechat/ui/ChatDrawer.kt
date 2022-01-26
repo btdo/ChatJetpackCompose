@@ -21,7 +21,7 @@ import com.example.composechat.ChatScreen
 import com.example.composechat.R
 import com.example.composechat.conversation.ConversationUiState
 import com.example.composechat.conversation.initialMessages
-import com.example.composechat.conversation.meProfile
+import com.example.composechat.profile.meProfile
 import com.example.composechat.ui.theme.ComposeChatTheme
 
 @Composable

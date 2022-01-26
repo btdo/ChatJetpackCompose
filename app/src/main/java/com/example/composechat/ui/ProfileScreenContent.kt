@@ -19,8 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.R
-import com.example.composechat.conversation.ProfileUiState
-import com.example.composechat.conversation.meProfile
+import com.example.composechat.profile.ProfileUiState
+import com.example.composechat.profile.meProfile
 
 
 @Composable

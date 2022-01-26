@@ -47,7 +47,7 @@ fun ConversationBody(
     modifier: Modifier = Modifier
 ) {
     if (conUiState is ConversationUiState.Loading) {
-
+        LoadingScreen()
         return
     }
 
@@ -104,7 +104,7 @@ fun MessageList(
                 val nextAuthor = messages.getOrNull(index + 1)?.author
                 val message = messages[index]
                 val isLastMessageByAuthor = nextAuthor != message.author
-                val isCurrentAuthor = message.author == "me"
+                val isCurrentAuthor = message.author == "aliconors"
                 item {
                     MessageAndAuthor(
                         message = message,
@@ -196,7 +196,7 @@ fun AuthorSection(
             onProfileClicked(message.author)
         }) {
             if (isAuthorMe) {
-                Text(text = message.author, style = MaterialTheme.typography.titleMedium)
+                Text(text = "me", style = MaterialTheme.typography.titleMedium)
             } else {
                 Image(
                     modifier = Modifier
