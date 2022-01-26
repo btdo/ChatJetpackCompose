@@ -1,5 +1,6 @@
 package com.example.composechat.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,6 +47,8 @@ fun ConversationBody(
     onProfileClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Log.d("ConversationBody", "recomposing $conUiState")
+
     if (conUiState is ConversationUiState.Loading) {
         LoadingScreen()
         return

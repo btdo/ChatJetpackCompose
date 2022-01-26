@@ -1,6 +1,7 @@
 package com.example.composechat
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -10,10 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,26 +39,33 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ChatApp(viewModel: MainViewModel) {
+    Log.d("MainActivity", "recomposing $viewModel")
     ComposeChatTheme {
         val navController = rememberNavController()
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
+        LaunchedEffect(viewModel) {
+            Log.d("MainActivity", "launched effect recomposing $viewModel")
+            viewModel.getConversationState()
+        }
         val openDrawer = {
             scope.launch {
                 drawerState.open()
             }
         }
-        val profileUiState = remember { viewModel.profileUiState }
+
+        val profileUiState by remember { viewModel.profileUiState }
         val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
-            ProfileBody(profileUiState.value)
+            ProfileBody(profileUiState)
         }
 
+        val conversationUiState by remember { viewModel.conversationState }
         val conversation = ChatScreen.ConversationScreen(
             Icons.Filled.AccountBox,
             "Conversation",
             "conversation"
         ) {
-            ConversationBody(conUiState = viewModel.conversationState, onProfileClicked = {
+            ConversationBody(conUiState = conversationUiState, onProfileClicked = {
                 viewModel.getProfile(it)
                 navController.navigate(profile.route)
             })

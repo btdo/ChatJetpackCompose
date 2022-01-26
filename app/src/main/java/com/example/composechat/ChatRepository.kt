@@ -16,8 +16,8 @@ class ChatRepository {
         return ConversationUiState.ConversationState("test", 4, initialMessages = initialMessages)
     }
 
-    suspend fun getProfile(name: String): ProfileUiState {
-        delay(3000)
+    suspend fun getProfile(name: String): ProfileUiState.ProfileState {
+        delay(2000)
         profiles.forEach {
             if (it.displayName == name) {
                 return it

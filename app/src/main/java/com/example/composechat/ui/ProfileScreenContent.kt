@@ -1,5 +1,6 @@
 package com.example.composechat.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,12 @@ import com.example.composechat.profile.meProfile
 
 @Composable
 fun ProfileBody(profileScreenState: ProfileUiState, modifier: Modifier = Modifier) {
+    Log.d("ConversationBody", "recomposing")
+    if (profileScreenState is ProfileUiState.Loading) {
+        LoadingScreen()
+        return
+    }
+    val ui = (profileScreenState as ProfileUiState.ProfileState)
     val scrollState = rememberScrollState()
     Surface {
         Column(
@@ -36,7 +43,7 @@ fun ProfileBody(profileScreenState: ProfileUiState, modifier: Modifier = Modifie
                 )
                 .verticalScroll(scrollState)
         ) {
-            profileScreenState.photo?.let {
+            ui.photo?.let {
                 Image(
                     painter = painterResource(id = it),
                     contentDescription = null,
@@ -49,19 +56,19 @@ fun ProfileBody(profileScreenState: ProfileUiState, modifier: Modifier = Modifie
             }
             Spacer(modifier = Modifier.height(8.dp))
             ProfileNameAndPosition(
-                profileScreenState = profileScreenState
+                profileScreenState = ui
             )
             ProfileProperty(
                 title = stringResource(id = R.string.display_name),
-                profileScreenState.displayName
+                ui.displayName
             )
-            ProfileProperty(title = stringResource(id = R.string.status), profileScreenState.status)
+            ProfileProperty(title = stringResource(id = R.string.status), ui.status)
             ProfileProperty(
                 title = stringResource(id = R.string.twitter),
-                profileScreenState.twitter,
+                ui.twitter,
                 true
             )
-            profileScreenState.timeZone?.let {
+            ui.timeZone?.let {
                 ProfileProperty(title = stringResource(id = R.string.timezone), it)
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -77,7 +84,7 @@ fun ProfileBodyPreview() {
 }
 
 @Composable
-fun ProfileNameAndPosition(profileScreenState: ProfileUiState) {
+fun ProfileNameAndPosition(profileScreenState: ProfileUiState.ProfileState) {
     Column(Modifier.fillMaxWidth()) {
         Text(text = profileScreenState.name, style = MaterialTheme.typography.h4)
         Text(

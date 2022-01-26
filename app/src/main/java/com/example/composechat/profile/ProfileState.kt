@@ -4,27 +4,29 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import com.example.composechat.R
 
+sealed class ProfileUiState {
+    object Loading : ProfileUiState()
 
-@Immutable
-data class ProfileUiState(
-    val userId: String,
-    @DrawableRes val photo: Int?,
-    val name: String,
-    val status: String,
-    val displayName: String,
-    val position: String,
-    val twitter: String = "",
-    val timeZone: String?, // Null if me
-    val commonChannels: String? // Null if me
-) {
-    fun isMe() = userId == meProfile.userId
+    @Immutable
+    data class ProfileState(
+        val userId: String,
+        @DrawableRes val photo: Int?,
+        val name: String,
+        val status: String,
+        val displayName: String,
+        val position: String,
+        val twitter: String = "",
+        val timeZone: String?, // Null if me
+        val commonChannels: String? // Null if me
+    ) : ProfileUiState() {
+        fun isMe() = userId == meProfile.userId
+    }
 }
-
 
 /**
  * Example colleague profile
  */
-val colleagueProfile = ProfileUiState(
+val colleagueProfile = ProfileUiState.ProfileState(
     userId = "12345",
     photo = R.drawable.someone_else,
     name = "Taylor Brooks",
@@ -39,7 +41,7 @@ val colleagueProfile = ProfileUiState(
 /**
  * Example colleague profile
  */
-val colleagueProfile2 = ProfileUiState(
+val colleagueProfile2 = ProfileUiState.ProfileState(
     userId = "41235",
     photo = R.drawable.someone_else,
     name = "John Glenn",
@@ -54,7 +56,7 @@ val colleagueProfile2 = ProfileUiState(
 /**
  * Example "me" profile.
  */
-val meProfile = ProfileUiState(
+val meProfile = ProfileUiState.ProfileState(
     userId = "me",
     photo = R.drawable.ali,
     name = "Ali Conors",
