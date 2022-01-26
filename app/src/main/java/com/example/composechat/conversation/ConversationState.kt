@@ -5,14 +5,23 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateListOf
 import com.example.composechat.R
 
-class ConversationUiState(channelName: String, val channelMembers: Int, initialMessages: List<Message>) {
-    var messages = mutableStateListOf(*initialMessages.toTypedArray())
-        private set
 
-    fun addMessage(message: Message){
-        messages.add(0, message)
+sealed class ConversationUiState {
+    object Loading : ConversationUiState()
+    class ConversationState(
+        channelName: String,
+        val channelMembers: Int,
+        initialMessages: List<Message>
+    ) : ConversationUiState() {
+        var messages = mutableStateListOf(*initialMessages.toTypedArray())
+            private set
+
+        fun addMessage(message: Message) {
+            messages.add(0, message)
+        }
     }
 }
+
 
 @Immutable
 data class Message(
@@ -64,7 +73,7 @@ val initialMessages = listOf(
 
 
 @Immutable
-data class ProfileScreenState(
+data class ProfileUiState(
     val userId: String,
     @DrawableRes val photo: Int?,
     val name: String,
@@ -82,7 +91,7 @@ data class ProfileScreenState(
 /**
  * Example colleague profile
  */
-val colleagueProfile = ProfileScreenState(
+val colleagueProfile = ProfileUiState(
     userId = "12345",
     photo = R.drawable.someone_else,
     name = "Taylor Brooks",
@@ -97,7 +106,7 @@ val colleagueProfile = ProfileScreenState(
 /**
  * Example "me" profile.
  */
-val meProfile = ProfileScreenState(
+val meProfile = ProfileUiState(
     userId = "me",
     photo = R.drawable.ali,
     name = "Ali Conors",

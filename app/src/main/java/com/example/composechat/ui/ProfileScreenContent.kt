@@ -1,7 +1,6 @@
 package com.example.composechat.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,12 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composechat.R
-import com.example.composechat.conversation.ProfileScreenState
+import com.example.composechat.conversation.ProfileUiState
 import com.example.composechat.conversation.meProfile
 
 
 @Composable
-fun ProfileBody(profileScreenState: ProfileScreenState, modifier: Modifier = Modifier) {
+fun ProfileBody(profileScreenState: ProfileUiState, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
     Surface {
         Column(
@@ -50,8 +49,7 @@ fun ProfileBody(profileScreenState: ProfileScreenState, modifier: Modifier = Mod
             }
             Spacer(modifier = Modifier.height(8.dp))
             ProfileNameAndPosition(
-                profileScreenState = profileScreenState,
-                scrollState = scrollState
+                profileScreenState = profileScreenState
             )
             ProfileProperty(
                 title = stringResource(id = R.string.display_name),
@@ -79,9 +77,7 @@ fun ProfileBodyPreview() {
 }
 
 @Composable
-fun ProfileNameAndPosition(profileScreenState: ProfileScreenState, scrollState: ScrollState) {
-
-
+fun ProfileNameAndPosition(profileScreenState: ProfileUiState) {
     Column(Modifier.fillMaxWidth()) {
         Text(text = profileScreenState.name, style = MaterialTheme.typography.h4)
         Text(

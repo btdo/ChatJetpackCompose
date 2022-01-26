@@ -2,6 +2,7 @@ package com.example.composechat.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -35,12 +36,22 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun ConversationBodyPreview() {
-    val conUi = ConversationUiState("test", 4, initialMessages = initialMessages)
-    ConversationBody(ui = conUi)
+    val conUi = ConversationUiState.ConversationState("test", 4, initialMessages = initialMessages)
+    ConversationBody(conUiState = conUi, {})
 }
 
 @Composable
-fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
+fun ConversationBody(
+    conUiState: ConversationUiState,
+    onProfileClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (conUiState is ConversationUiState.Loading) {
+
+        return
+    }
+
+    val ui = (conUiState as ConversationUiState.ConversationState)
     val scrollState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val isScrolling by remember {
@@ -55,7 +66,12 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
                 .navigationBarsWithImePadding()
                 .fillMaxSize()
         ) {
-            MessageList(ui.messages, scrollState = scrollState, modifier = Modifier.weight(1f)) {
+            MessageList(
+                messages = ui.messages,
+                onProfileClicked = onProfileClicked,
+                scrollState = scrollState,
+                modifier = Modifier.weight(1f)
+            ) {
                 scope.launch {
                     scrollState.animateScrollToItem(0)
                 }
@@ -71,6 +87,7 @@ fun ConversationBody(ui: ConversationUiState, modifier: Modifier = Modifier) {
 @Composable
 fun MessageList(
     messages: List<Message>,
+    onProfileClicked: (String) -> Unit,
     scrollState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier,
     resetScroll: () -> Unit
@@ -92,7 +109,8 @@ fun MessageList(
                     MessageAndAuthor(
                         message = message,
                         isLastMessageByAuthor = isLastMessageByAuthor,
-                        isAuthorMe = isCurrentAuthor
+                        isAuthorMe = isCurrentAuthor,
+                        onProfileClicked = onProfileClicked
                     )
                 }
             }
@@ -136,10 +154,11 @@ fun JumpToBottomPreview() {
 
 @Composable
 fun MessageAndAuthor(
-    modifier: Modifier = Modifier,
     message: Message,
     isLastMessageByAuthor: Boolean,
-    isAuthorMe: Boolean
+    isAuthorMe: Boolean,
+    onProfileClicked: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val padding = if (isAuthorMe) Modifier.padding(
         start = 24.dp,
@@ -154,7 +173,8 @@ fun MessageAndAuthor(
         AuthorSection(
             message = message,
             isLastMessageByAuthor = isLastMessageByAuthor,
-            isAuthorMe = isAuthorMe
+            isAuthorMe = isAuthorMe,
+            onProfileClicked = onProfileClicked
         )
         MessageSection(
             message = message,
@@ -164,10 +184,17 @@ fun MessageAndAuthor(
 }
 
 @Composable
-fun AuthorSection(message: Message, isLastMessageByAuthor: Boolean, isAuthorMe: Boolean) {
+fun AuthorSection(
+    message: Message,
+    isLastMessageByAuthor: Boolean,
+    isAuthorMe: Boolean,
+    onProfileClicked: (String) -> Unit,
+) {
     if (isLastMessageByAuthor) {
         Spacer(modifier = Modifier.height(12.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
+            onProfileClicked(message.author)
+        }) {
             if (isAuthorMe) {
                 Text(text = message.author, style = MaterialTheme.typography.titleMedium)
             } else {

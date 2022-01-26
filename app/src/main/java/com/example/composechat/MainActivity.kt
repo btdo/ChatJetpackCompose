@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,17 +50,20 @@ fun ChatApp(viewModel: MainViewModel) {
                 drawerState.open()
             }
         }
+        val profileUiState = remember { viewModel.profileUiState }
+        val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
+            ProfileBody(profileUiState.value)
+        }
 
         val conversation = ChatScreen.ConversationScreen(
             Icons.Filled.AccountBox,
             "Conversation",
             "conversation"
         ) {
-            ConversationBody(ui = viewModel.conversationUI)
-        }
-
-        val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
-            ProfileBody(viewModel.profileScreenState)
+            ConversationBody(conUiState = viewModel.conversationState, onProfileClicked = {
+                viewModel.getProfile(it)
+                navController.navigate(profile.route)
+            })
         }
 
         if (drawerState.isOpen) {
