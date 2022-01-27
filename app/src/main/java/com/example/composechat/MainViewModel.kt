@@ -19,8 +19,8 @@ class MainViewModel(val repository: ChatRepository = ChatRepository()) : ViewMod
     var profileUiState = mutableStateOf<ProfileUiState>(ProfileUiState.Loading)
 
     fun getProfile(name: String) {
-        profileUiState.value = ProfileUiState.Loading
         viewModelScope.launch {
+            profileUiState.value = ProfileUiState.Loading
             profileUiState.value = repository.getProfile(name)
         }
     }

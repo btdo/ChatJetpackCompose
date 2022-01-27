@@ -12,12 +12,16 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.composechat.conversation.BackPressHandler
 import com.example.composechat.conversation.LocalBackPressedDispatcher
+import com.example.composechat.profile.meProfile
 import com.example.composechat.ui.ChatDrawer
 import com.example.composechat.ui.ConversationBody
 import com.example.composechat.ui.ProfileBody
@@ -55,19 +59,20 @@ fun ChatApp(viewModel: MainViewModel) {
         }
 
         val profileUiState by remember { viewModel.profileUiState }
-        val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
+        val profile = ChatScreen.ProfileScreen(
+            Icons.Filled.Person,
+            stringResource(id = R.string.profile_screen)
+        ) {
             ProfileBody(profileUiState)
         }
 
         val conversationUiState by remember { viewModel.conversationState }
         val conversation = ChatScreen.ConversationScreen(
             Icons.Filled.AccountBox,
-            "Conversation",
-            "conversation"
+            stringResource(id = R.string.conversation_screen)
         ) {
             ConversationBody(conUiState = conversationUiState, onProfileClicked = {
-                viewModel.getProfile(it)
-                navController.navigate(profile.route)
+                navController.navigate("${profile.route}/${it}")
             })
         }
 
@@ -94,10 +99,12 @@ fun ChatApp(viewModel: MainViewModel) {
                         scope.launch {
                             drawerState.close()
                         }
-                        if (route == conversation.route) {
-                            navController.popBackStack(conversation.route, inclusive = false)
-                        } else {
-                            navController.navigate(route)
+                        when (fromRoute(route, screens)) {
+                            is ChatScreen.ProfileScreen -> navController.navigate("${profile.route}/${meProfile.displayName}")
+                            else -> navController.popBackStack(
+                                conversation.route,
+                                inclusive = false
+                            )
                         }
                     })
             }) {
@@ -106,11 +113,28 @@ fun ChatApp(viewModel: MainViewModel) {
                 startDestination = screens[0].route
             ) {
                 screens.forEach { screen ->
-                    composable(screen.route) {
-                        ChatScreenScaffold(title = screen.title, body = {
-                            screen.body()
-                        }) {
-                            openDrawer()
+                    when (screen) {
+                        is ChatScreen.ProfileScreen -> {
+                            composable("${screen.route}/{name}", listOf(navArgument("name") {
+                                type = NavType.StringType
+                            })) { entry ->
+                                val name = requireNotNull(entry.arguments?.getString("name"))
+                                ChatScreenScaffold(title = screen.title, body = {
+                                    viewModel.getProfile(name)
+                                    screen.body()
+                                }) {
+                                    openDrawer()
+                                }
+                            }
+                        }
+                        else -> {
+                            composable(screen.route) {
+                                ChatScreenScaffold(title = screen.title, body = {
+                                    screen.body()
+                                }) {
+                                    openDrawer()
+                                }
+                            }
                         }
                     }
                 }
@@ -125,7 +149,7 @@ fun fromRoute(route: String?, screens: List<ChatScreen>): ChatScreen {
     }
     var foundScreen: ChatScreen? = null
     screens.forEach {
-        if (it.route == route) {
+        if (it.route == route.substringBefore("/")) {
             foundScreen = it
         }
     }

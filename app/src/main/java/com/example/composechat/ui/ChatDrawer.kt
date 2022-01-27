@@ -129,8 +129,8 @@ fun DrawerItem(modifier: Modifier = Modifier, screen: ChatScreen, selected: Bool
 fun ChatDrawerPreview() {
     val conversation = ChatScreen.ConversationScreen(
         Icons.Filled.AccountBox,
-        "Conversation",
-        "conversation")
+        "Conversation"
+    )
     {
         ConversationBody(conUiState = ConversationUiState.ConversationState(
             "test",
@@ -138,7 +138,7 @@ fun ChatDrawerPreview() {
             initialMessages = initialMessages
         ), onProfileClicked = {})
     }
-    val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile", "profile") {
+    val profile = ChatScreen.ProfileScreen(Icons.Filled.Person, "Profile") {
         ProfileBody(meProfile)
     }
     val screens = listOf(conversation, profile)
