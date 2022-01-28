@@ -112,30 +112,24 @@ fun ChatApp(viewModel: MainViewModel) {
                 navController = navController,
                 startDestination = screens[0].route
             ) {
-                screens.forEach { screen ->
-                    when (screen) {
-                        is ChatScreen.ProfileScreen -> {
-                            composable("${screen.route}/{name}", listOf(navArgument("name") {
-                                type = NavType.StringType
-                            })) { entry ->
-                                val name = requireNotNull(entry.arguments?.getString("name"))
-                                ChatScreenScaffold(title = screen.title, body = {
-                                    viewModel.getProfile(name)
-                                    screen.body()
-                                }) {
-                                    openDrawer()
-                                }
-                            }
-                        }
-                        else -> {
-                            composable(screen.route) {
-                                ChatScreenScaffold(title = screen.title, body = {
-                                    screen.body()
-                                }) {
-                                    openDrawer()
-                                }
-                            }
-                        }
+                composable("${profile.route}/{name}", listOf(navArgument("name") {
+                    type = NavType.StringType
+                })) { entry ->
+                    Log.d("MainActivity", "profile recomposing")
+                    val name = requireNotNull(entry.arguments?.getString("name"))
+                    ChatScreenScaffold(title = profile.title, body = {
+                        viewModel.getProfile(name)
+                        profile.body()
+                    }) {
+                        openDrawer()
+                    }
+                }
+
+                composable(conversation.route) {
+                    ChatScreenScaffold(title = conversation.title, body = {
+                        conversation.body()
+                    }) {
+                        openDrawer()
                     }
                 }
             }

@@ -23,6 +23,10 @@ class MainViewModel(val repository: ChatRepository = ChatRepository()) : ViewMod
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState
 
     fun getProfile(name: String) {
+        val currentState = _profileUiState.value
+        if (currentState is ProfileUiState.ProfileState && currentState.displayName == name) {
+            return
+        }
         _profileUiState.value = ProfileUiState.Loading
         viewModelScope.launch {
             _profileUiState.value = repository.getProfile(name)

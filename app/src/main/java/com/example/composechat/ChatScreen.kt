@@ -27,6 +27,7 @@ fun ChatScreenScaffold(
     body: @Composable () -> Unit,
     onDrawerClicked: () -> Unit
 ) {
+
     Column(Modifier.fillMaxSize()) {
         TopBar(title = title) {
             onDrawerClicked()
