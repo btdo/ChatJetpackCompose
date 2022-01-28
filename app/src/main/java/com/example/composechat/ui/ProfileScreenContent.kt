@@ -26,7 +26,7 @@ import com.example.composechat.profile.meProfile
 
 @Composable
 fun ProfileBody(profileScreenState: ProfileUiState, modifier: Modifier = Modifier) {
-    Log.d("ConversationBody", "recomposing")
+    Log.d("Profile", "recomposing $profileScreenState")
     if (profileScreenState is ProfileUiState.Loading) {
         LoadingScreen()
         return

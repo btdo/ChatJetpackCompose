@@ -1,27 +1,31 @@
 package com.example.composechat
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composechat.conversation.ConversationUiState
 import com.example.composechat.profile.ProfileUiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(val repository: ChatRepository = ChatRepository()) : ViewModel() {
-    var conversationState = mutableStateOf<ConversationUiState>(ConversationUiState.Loading)
+    private val _conversationState =
+        MutableStateFlow<ConversationUiState>(ConversationUiState.Loading)
+    val conversationState: StateFlow<ConversationUiState> = _conversationState
 
     fun getConversationState() {
         viewModelScope.launch {
-            conversationState.value = repository.getConversation()
+            _conversationState.value = repository.getConversation()
         }
     }
 
-    var profileUiState = mutableStateOf<ProfileUiState>(ProfileUiState.Loading)
+    private val _profileUiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
+    val profileUiState: StateFlow<ProfileUiState> = _profileUiState
 
     fun getProfile(name: String) {
+        _profileUiState.value = ProfileUiState.Loading
         viewModelScope.launch {
-            profileUiState.value = ProfileUiState.Loading
-            profileUiState.value = repository.getProfile(name)
+            _profileUiState.value = repository.getProfile(name)
         }
     }
 

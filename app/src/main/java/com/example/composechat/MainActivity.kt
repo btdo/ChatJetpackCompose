@@ -58,20 +58,20 @@ fun ChatApp(viewModel: MainViewModel) {
             }
         }
 
-        val profileUiState by remember { viewModel.profileUiState }
+        val profileUiState = viewModel.profileUiState.collectAsState()
         val profile = ChatScreen.ProfileScreen(
             Icons.Filled.Person,
             stringResource(id = R.string.profile_screen)
         ) {
-            ProfileBody(profileUiState)
+            ProfileBody(profileUiState.value)
         }
 
-        val conversationUiState by remember { viewModel.conversationState }
+        val conversationUiState = viewModel.conversationState.collectAsState()
         val conversation = ChatScreen.ConversationScreen(
             Icons.Filled.AccountBox,
             stringResource(id = R.string.conversation_screen)
         ) {
-            ConversationBody(conUiState = conversationUiState, onProfileClicked = {
+            ConversationBody(conUiState = conversationUiState.value, onProfileClicked = {
                 navController.navigate("${profile.route}/${it}")
             })
         }
