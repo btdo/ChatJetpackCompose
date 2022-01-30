@@ -38,13 +38,14 @@ import kotlinx.coroutines.launch
 @Preview
 fun ConversationBodyPreview() {
     val conUi = ConversationUiState.ConversationState("test", 4, initialMessages = initialMessages)
-    ConversationBody(conUiState = conUi, {})
+    ConversationBody(conUiState = conUi, {}, {})
 }
 
 @Composable
 fun ConversationBody(
     conUiState: ConversationUiState,
     onProfileClicked: (String) -> Unit,
+    onMessageAdd: (Message) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Log.d("ConversationBody", "recomposing $conUiState")
@@ -73,14 +74,15 @@ fun ConversationBody(
                 messages = ui.messages,
                 onProfileClicked = onProfileClicked,
                 scrollState = scrollState,
+                resetScroll = {
+                    scope.launch {
+                        scrollState.animateScrollToItem(0)
+                    }
+                },
                 modifier = Modifier.weight(1f)
-            ) {
-                scope.launch {
-                    scrollState.animateScrollToItem(0)
-                }
-            }
+            )
             UserInput(isScrolling = isScrolling, onMessageSend = {
-                ui.addMessage(it)
+                onMessageAdd(it)
             })
         }
     }
@@ -92,8 +94,8 @@ fun MessageList(
     messages: List<Message>,
     onProfileClicked: (String) -> Unit,
     scrollState: LazyListState = rememberLazyListState(),
+    resetScroll: () -> Unit,
     modifier: Modifier = Modifier,
-    resetScroll: () -> Unit
 ) {
     val jumpToBottomEnabled by remember {
         derivedStateOf {

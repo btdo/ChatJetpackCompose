@@ -3,6 +3,7 @@ package com.example.composechat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composechat.conversation.ConversationUiState
+import com.example.composechat.conversation.Message
 import com.example.composechat.profile.ProfileUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,12 @@ class MainViewModel(val repository: ChatRepository = ChatRepository()) : ViewMod
     fun getConversationState() {
         viewModelScope.launch {
             _conversationState.value = repository.getConversation()
+        }
+    }
+
+    fun addMessage(message: Message) {
+        viewModelScope.launch {
+            repository.addMessage(message)
         }
     }
 

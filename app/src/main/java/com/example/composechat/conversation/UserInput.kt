@@ -59,7 +59,7 @@ fun UserInput(
         UserInputSelector(onMessageSendClicked = {
             val time = SimpleDateFormat("HH:mm a").format(Date())
             onMessageSend(
-                Message("me", content = text, timestamp = time)
+                Message("aliconors", content = text, timestamp = time)
             )
             setText("")
         }, onIconSelected = {
@@ -84,6 +84,7 @@ fun SelectorExpanded(currentSelector: InputSelector, onDismiss: () -> Unit) {
             InputSelector.PICTURE -> focusRequester.requestFocus()
             InputSelector.MAP -> focusRequester.requestFocus()
             InputSelector.PHONE -> focusRequester.requestFocus()
+            else -> {}
         }
     }
 

@@ -7,10 +7,10 @@ import com.example.composechat.R
 
 sealed class ConversationUiState {
     object Loading : ConversationUiState()
-    class ConversationState(
-        channelName: String,
+    data class ConversationState(
+        val channelName: String,
         val channelMembers: Int,
-        initialMessages: List<Message>
+        val initialMessages: List<Message>
     ) : ConversationUiState() {
         var messages = mutableStateListOf(*initialMessages.toTypedArray())
             private set

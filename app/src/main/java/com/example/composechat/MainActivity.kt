@@ -73,6 +73,8 @@ fun ChatApp(viewModel: MainViewModel) {
         ) {
             ConversationBody(conUiState = conversationUiState.value, onProfileClicked = {
                 navController.navigate("${profile.route}/${it}")
+            }, onMessageAdd = {
+                viewModel.addMessage(it)
             })
         }
 
