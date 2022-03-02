@@ -14,10 +14,8 @@ class MainViewModel(val repository: ChatRepository = ChatRepository()) : ViewMod
         MutableStateFlow<ConversationUiState>(ConversationUiState.Loading)
     val conversationState: StateFlow<ConversationUiState> = _conversationState
 
-    fun getConversationState() {
-        viewModelScope.launch {
-            _conversationState.value = repository.getConversation()
-        }
+    suspend fun getConversationState() {
+        _conversationState.value = repository.getConversation()
     }
 
     fun addMessage(message: Message) {
